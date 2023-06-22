@@ -1,0 +1,61 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="Start your development with Creative Studio landing page.">
+    <meta name="author" content="Devcrud">
+    <title>@ViewData["Title"] - Roles</title>
+    <link rel="stylesheet" href="~/css/login.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.4/font/bootstrap-icons.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Acme&family=Arvo&family=Bree+Serif&family=Courgette&family=Domine:wght@700&family=Great+Vibes&family=Montserrat:wght@100;400;500&family=Noto+Serif+Toto:wght@700&family=Nunito+Sans:wght@600&family=Permanent+Marker&family=Roboto+Serif:opsz,wght@8..144,200;8..144,300&family=Roboto+Slab:wght@300;400&family=Roboto:ital,wght@0,100;0,300;0,500;1,500&family=Rowdies&family=Satisfy&display=swap" rel="stylesheet">
+    <style>
+        .form-control {
+            border-radius: 0.8rem !important;
+            display: block;
+            width: 100%;
+            height: calc(1.5em + 1.92rem + 2px);
+            padding: 0.96rem 0.75rem;
+            font-size: 1rem;
+            font-weight: 400;
+            line-height: 1.5;
+            color: #495057;
+            background-color: #fff;
+            background-clip: padding-box;
+            border: 1px solid #ced4da;
+            border-radius: 0.2rem;
+            -webkit-transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+            transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+            margin-bottom: 1rem;
+        }
+
+        .main {
+            min-height: 94vh;
+        }
+
+        .toast-top-right {
+            top: 6% !important;
+            right: 50% !important;
+            transform: translateX(50%);
+        }
+
+        .validation-summary-errors ul {
+            list-style: none;
+            padding: 10px 15px;
+            margin: 0px 0 10px;
+            background-color: #eee;
+            border-radius: 15px;
+            border: 1px solid;
+            text-align: center;
+            box-shadow: 0 0 6px 1px #000;
+        }
+    </style>
+</head>
+<body data-spy="scroll" data-target=".navbar" data-offset="40" id="home">
+    @RenderBody()
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

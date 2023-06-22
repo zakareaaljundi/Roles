@@ -1,0 +1,33 @@
+﻿@model Roles.Models.ViewModel.LoginViewModel
+
+@{
+    ViewData["Title"] = "Login";
+    Layout = "_LoginLayout";
+}
+<body class="page">
+    <main class="main page__main">
+        <form class="login-form main__login-form" asp-action="Login">
+            <h3 class="login-form__title">Login</h3>
+            <div asp-validation-summary="All" class="text-danger"></div>
+            <div class="form-group">
+                <input asp-for="Email" class="form-control" placeholder="Email" />
+                <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input asp-for="Password" class="form-control" placeholder="Password" />
+                <span asp-validation-for="Password" class="text-danger"></span>
+            </div>
+            <button class="primary-btn" type="submit">Login</button>
+            <div class="login-form__footer">
+                <a class="login-form__link" asp-action="ForgetPassword">Forget Password?</a>
+                <a class="login-form__link" asp-action="Register">Sing Up</a>
+            </div>
+        </form>
+    </main>
+</body>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
