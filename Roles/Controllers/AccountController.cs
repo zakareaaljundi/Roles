@@ -272,6 +272,27 @@ namespace Roles.Controllers
 
         }
         [HttpGet]
+        public async Task<IActionResult> DeleteRole(string id)
+        {
+            var role = await roleManager.FindByIdAsync(id);
+            if (role == null)
+            {
+                return NotFound();
+            }
+            var result = await roleManager.DeleteAsync(role);
+            if (!result.Succeeded)
+            {
+                return View("Error");
+            }
+
+            var rolePermissions = await dbContext.RolePermissions.Where(p => p.RoleId == id).ToListAsync();
+            dbContext.RolePermissions.RemoveRange(rolePermissions);
+            await dbContext.SaveChangesAsync();
+
+            return RedirectToAction("RolesList");
+        }
+
+        [HttpGet]
         [Authorize(Roles = "Admin")]
         public IActionResult Permissions(string id)
         {

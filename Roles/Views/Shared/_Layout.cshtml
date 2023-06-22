@@ -59,10 +59,13 @@
         <main role="main" class="pb-3">
             <div class="row">
                 <p class="display-1 text-center mb-5">Home</p>
-                <div class="col-md-2 bg-secondary rounded-3 pt-2 pb-5">
-                    <a class="border-bottom d-block ps-2 py-2 text-decoration-none text-light" asp-action="Index" asp-controller="Departments" asp-area="">Department</a>
-                    <a class="border-bottom d-block ps-2 py-2 text-decoration-none text-light" asp-action="Index" asp-controller="Employees" asp-area="">Employee</a>
-                </div>
+                @if (signInManager.IsSignedIn(User))
+                {
+                    <div class="col-md-2 bg-secondary rounded-3 pt-2 pb-5">
+                        <a class="border-bottom d-block ps-2 py-2 text-decoration-none text-light" asp-action="Index" asp-controller="Departments" asp-area="">Department</a>
+                        <a class="border-bottom d-block ps-2 py-2 text-decoration-none text-light" asp-action="Index" asp-controller="Employees" asp-area="">Employee</a>
+                    </div>
+                }
                 <div class="col-md-10">
                     @RenderBody()
                 </div>

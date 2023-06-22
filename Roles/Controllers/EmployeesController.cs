@@ -16,29 +16,35 @@ namespace Roles.Controllers
     {
         private readonly finalDbContext _context;
         private UserManager<IdentityUser> _userManager;
+        private RoleManager<IdentityRole> _roleManager;
 
-        public EmployeesController(finalDbContext context, UserManager<IdentityUser> userManager)
+        public EmployeesController(finalDbContext context, UserManager<IdentityUser> userManager, RoleManager<IdentityRole> roleManager)
         {
             _context = context;
             _userManager = userManager;
+            _roleManager = roleManager;
         }
-
-      /*  private async Task<string> GetCurrentRole()
-        {
-            var user = await userManager.GetUserAsync(User);
-            var roles = await userManager.GetRolesAsync(user);
-            return roles.FirstOrDefault();
-        }*/
 
         // GET: Employees
         public async Task<IActionResult> Index()
         {
             var currentUser = await _userManager.GetUserAsync(User);
-            var currentRole = await _userManager.GetRolesAsync(currentUser);
+            var currentRoles = await _userManager.GetRolesAsync(currentUser);
+            var roleId = "";
+            if (currentRoles.Count > 0)
+            {
+                var roleName = currentRoles[0];
+                var role = await _roleManager.FindByNameAsync(roleName);
+
+                if (role != null)
+                {
+                    roleId = role.Id;
+                }
+            }
 
             var controllerName = this.ControllerContext.RouteData.Values["controller"]!.ToString();
 
-            var rolePermissions = await _context.RolePermissions.FirstOrDefaultAsync(p => currentRole.Contains(p.RoleId!) && p.TableName == controllerName);
+            var rolePermissions = await _context.RolePermissions.FirstOrDefaultAsync(p => p.RoleId! == roleId && p.TableName == controllerName);
 
             bool canAdd = rolePermissions != null && rolePermissions.AddPermission;
             bool canEdit = rolePermissions != null && rolePermissions.EditPermission;
@@ -53,35 +59,28 @@ namespace Roles.Controllers
             var finalDbContext = _context.Employees.Include(e => e.Department);
             return View(await finalDbContext.ToListAsync());
         }
-
-        /* private async Task<RolePermission> GetPermissionsForCurrentUser(string roleName, string controllerName)
-         {
-             return await _context.RolePermissions.FirstOrDefaultAsync(rp => rp.RoleId == roleName && rp.TableName == controllerName);
-         }
-         public async Task<IActionResult> Index()
-         {
-             var finalDbContext = _context.Employees.Include(e => e.Department);
-
-             var user = await _userManager.GetUserAsync(User);
-             var userRoles = await _userManager.GetRolesAsync(user);
-             var userRole = userRoles.FirstOrDefault(); 
-
-             var controllerName = this.ControllerContext.RouteData.Values["controller"].ToString();
-
-             var permissions = await GetPermissionsForCurrentUser(userRole, controllerName);
-
-             ViewData["AddPermission"] = permissions?.AddPermission ?? false;
-
-             return View(await finalDbContext.ToListAsync());
-         }*/
-
-
-
-
-
         public async Task<IActionResult> Details(int? id)
         {
-            if (id == null || _context.Employees == null)
+            var currentUser = await _userManager.GetUserAsync(User);
+            var currentRoles = await _userManager.GetRolesAsync(currentUser);
+            var roleId = "";
+            if (currentRoles.Count > 0)
+            {
+                var roleName = currentRoles[0];
+                var role = await _roleManager.FindByNameAsync(roleName);
+
+                if (role != null)
+                {
+                    roleId = role.Id;
+                }
+            }
+            var controllerName = this.ControllerContext.RouteData.Values["controller"]!.ToString();
+            var rolePermissions = await _context.RolePermissions.FirstOrDefaultAsync(p => p.RoleId! == roleId && p.TableName == controllerName);
+            bool canEdit = rolePermissions != null && rolePermissions.EditPermission;
+            bool canRead = rolePermissions != null && rolePermissions.ReadPermission;
+            ViewBag.CanEdit = canEdit;
+
+            if (id == null || _context.Employees == null || canRead == false)
             {
                 return NotFound();
             }
@@ -98,8 +97,29 @@ namespace Roles.Controllers
         }
 
         // GET: Employees/Create
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
+            var currentUser = await _userManager.GetUserAsync(User);
+            var currentRoles = await _userManager.GetRolesAsync(currentUser);
+            var roleId = "";
+            if (currentRoles.Count > 0)
+            {
+                var roleName = currentRoles[0];
+                var role = await _roleManager.FindByNameAsync(roleName);
+
+                if (role != null)
+                {
+                    roleId = role.Id;
+                }
+            }
+            var controllerName = this.ControllerContext.RouteData.Values["controller"]!.ToString();
+            var rolePermissions = await _context.RolePermissions.FirstOrDefaultAsync(p => p.RoleId! == roleId && p.TableName == controllerName);
+            bool canAdd = rolePermissions != null && rolePermissions.AddPermission;
+            if (!canAdd)
+            {
+                return Unauthorized();
+            }
+
             ViewData["DepartmentId"] = new SelectList(_context.Departments, "DepartmentId", "Name");
             return View();
         }
@@ -124,7 +144,24 @@ namespace Roles.Controllers
         // GET: Employees/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
-            if (id == null || _context.Employees == null)
+            var currentUser = await _userManager.GetUserAsync(User);
+            var currentRoles = await _userManager.GetRolesAsync(currentUser);
+            var roleId = "";
+            if (currentRoles.Count > 0)
+            {
+                var roleName = currentRoles[0];
+                var role = await _roleManager.FindByNameAsync(roleName);
+
+                if (role != null)
+                {
+                    roleId = role.Id;
+                }
+            }
+            var controllerName = this.ControllerContext.RouteData.Values["controller"]!.ToString();
+            var rolePermissions = await _context.RolePermissions.FirstOrDefaultAsync(p => p.RoleId! == roleId && p.TableName == controllerName);
+            bool canEdit = rolePermissions != null && rolePermissions.EditPermission;
+
+            if (id == null || _context.Employees == null || canEdit == false)
             {
                 return NotFound();
             }
@@ -177,7 +214,24 @@ namespace Roles.Controllers
         // GET: Employees/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
-            if (id == null || _context.Employees == null)
+            var currentUser = await _userManager.GetUserAsync(User);
+            var currentRoles = await _userManager.GetRolesAsync(currentUser);
+            var roleId = "";
+            if (currentRoles.Count > 0)
+            {
+                var roleName = currentRoles[0];
+                var role = await _roleManager.FindByNameAsync(roleName);
+
+                if (role != null)
+                {
+                    roleId = role.Id;
+                }
+            }
+            var controllerName = this.ControllerContext.RouteData.Values["controller"]!.ToString();
+            var rolePermissions = await _context.RolePermissions.FirstOrDefaultAsync(p => p.RoleId! == roleId && p.TableName == controllerName);
+            bool canDelete = rolePermissions != null && rolePermissions.DeletePermission;
+
+            if (id == null || _context.Employees == null || canDelete == false)
             {
                 return NotFound();
             }

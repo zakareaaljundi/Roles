@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -13,16 +14,48 @@ namespace Roles.Controllers
     public class DepartmentsController : Controller
     {
         private readonly finalDbContext _context;
+        private UserManager<IdentityUser> _userManager;
+        private RoleManager<IdentityRole> _roleManager;
 
-        public DepartmentsController(finalDbContext context)
+        public DepartmentsController(finalDbContext context, UserManager<IdentityUser> userManager, RoleManager<IdentityRole> roleManager)
         {
             _context = context;
+            _userManager = userManager;
+            _roleManager = roleManager;
         }
 
         // GET: Departments
         public async Task<IActionResult> Index()
         {
-              return _context.Departments != null ? 
+            var currentUser = await _userManager.GetUserAsync(User);
+            var currentRoles = await _userManager.GetRolesAsync(currentUser);
+            var roleId = "";
+            if (currentRoles.Count > 0)
+            {
+                var roleName = currentRoles[0];
+                var role = await _roleManager.FindByNameAsync(roleName);
+
+                if (role != null)
+                {
+                    roleId = role.Id;
+                }
+            }
+
+            var controllerName = this.ControllerContext.RouteData.Values["controller"]!.ToString();
+
+            var rolePermissions = await _context.RolePermissions.FirstOrDefaultAsync(p => p.RoleId! == roleId && p.TableName == controllerName);
+
+            bool canAdd = rolePermissions != null && rolePermissions.AddPermission;
+            bool canEdit = rolePermissions != null && rolePermissions.EditPermission;
+            bool canRead = rolePermissions != null && rolePermissions.ReadPermission;
+            bool canDelete = rolePermissions != null && rolePermissions.DeletePermission;
+
+            ViewBag.CanAdd = canAdd;
+            ViewBag.CanEdit = canEdit;
+            ViewBag.CanRead = canRead;
+            ViewBag.CanDelete = canDelete;
+
+            return _context.Departments != null ? 
                           View(await _context.Departments.ToListAsync()) :
                           Problem("Entity set 'finalDbContext.Departments'  is null.");
         }
@@ -30,7 +63,26 @@ namespace Roles.Controllers
         // GET: Departments/Details/5
         public async Task<IActionResult> Details(int? id)
         {
-            if (id == null || _context.Departments == null)
+            var currentUser = await _userManager.GetUserAsync(User);
+            var currentRoles = await _userManager.GetRolesAsync(currentUser);
+            var roleId = "";
+            if (currentRoles.Count > 0)
+            {
+                var roleName = currentRoles[0];
+                var role = await _roleManager.FindByNameAsync(roleName);
+
+                if (role != null)
+                {
+                    roleId = role.Id;
+                }
+            }
+            var controllerName = this.ControllerContext.RouteData.Values["controller"]!.ToString();
+            var rolePermissions = await _context.RolePermissions.FirstOrDefaultAsync(p => p.RoleId! == roleId && p.TableName == controllerName);
+            bool canEdit = rolePermissions != null && rolePermissions.EditPermission;
+            bool canRead = rolePermissions != null && rolePermissions.ReadPermission;
+            ViewBag.CanEdit = canEdit;
+
+            if (id == null || _context.Departments == null || canRead == false)
             {
                 return NotFound();
             }
@@ -46,8 +98,28 @@ namespace Roles.Controllers
         }
 
         // GET: Departments/Create
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
+            var currentUser = await _userManager.GetUserAsync(User);
+            var currentRoles = await _userManager.GetRolesAsync(currentUser);
+            var roleId = "";
+            if (currentRoles.Count > 0)
+            {
+                var roleName = currentRoles[0];
+                var role = await _roleManager.FindByNameAsync(roleName);
+
+                if (role != null)
+                {
+                    roleId = role.Id;
+                }
+            }
+            var controllerName = this.ControllerContext.RouteData.Values["controller"]!.ToString();
+            var rolePermissions = await _context.RolePermissions.FirstOrDefaultAsync(p => p.RoleId! == roleId && p.TableName == controllerName);
+            bool canAdd = rolePermissions != null && rolePermissions.AddPermission;
+            if (!canAdd)
+            {
+                return Unauthorized();
+            }
             return View();
         }
 
@@ -70,7 +142,24 @@ namespace Roles.Controllers
         // GET: Departments/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
-            if (id == null || _context.Departments == null)
+            var currentUser = await _userManager.GetUserAsync(User);
+            var currentRoles = await _userManager.GetRolesAsync(currentUser);
+            var roleId = "";
+            if (currentRoles.Count > 0)
+            {
+                var roleName = currentRoles[0];
+                var role = await _roleManager.FindByNameAsync(roleName);
+
+                if (role != null)
+                {
+                    roleId = role.Id;
+                }
+            }
+            var controllerName = this.ControllerContext.RouteData.Values["controller"]!.ToString();
+            var rolePermissions = await _context.RolePermissions.FirstOrDefaultAsync(p => p.RoleId! == roleId && p.TableName == controllerName);
+            bool canEdit = rolePermissions != null && rolePermissions.EditPermission;
+
+            if (id == null || _context.Departments == null || canEdit == false)
             {
                 return NotFound();
             }
@@ -121,7 +210,24 @@ namespace Roles.Controllers
         // GET: Departments/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
-            if (id == null || _context.Departments == null)
+            var currentUser = await _userManager.GetUserAsync(User);
+            var currentRoles = await _userManager.GetRolesAsync(currentUser);
+            var roleId = "";
+            if (currentRoles.Count > 0)
+            {
+                var roleName = currentRoles[0];
+                var role = await _roleManager.FindByNameAsync(roleName);
+
+                if (role != null)
+                {
+                    roleId = role.Id;
+                }
+            }
+            var controllerName = this.ControllerContext.RouteData.Values["controller"]!.ToString();
+            var rolePermissions = await _context.RolePermissions.FirstOrDefaultAsync(p => p.RoleId! == roleId && p.TableName == controllerName);
+            bool canDelete = rolePermissions != null && rolePermissions.DeletePermission;
+
+            if (id == null || _context.Departments == null || canDelete == false)
             {
                 return NotFound();
             }

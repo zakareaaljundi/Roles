@@ -42,7 +42,10 @@
         </dd>
     </dl>
 </div>
-<div
-        <a asp-action="Edit" asp-route-id="@Model?.EmployeeId">Edit</a>
-        <a asp-action="Index">Back to List</a>
+<div>
+    @if (ViewBag.CanEdit)
+    {
+        <a asp-action="Edit" asp-route-id="@Model?.EmployeeId" class="btn btn-primary">Edit</a>
+    }
+    <a asp-action="Index" class="btn btn-warning">Back to List</a>
 </div>
