@@ -23,61 +23,57 @@ namespace Roles.Controllers
             _userManager = userManager;
         }
 
-        /* private async Task<string> GetCurrentRole()
-         {
-             var user = await userManager.GetUserAsync(User);
-             var roles = await userManager.GetRolesAsync(user);
-             return roles.FirstOrDefault();
-         }*/
+      /*  private async Task<string> GetCurrentRole()
+        {
+            var user = await userManager.GetUserAsync(User);
+            var roles = await userManager.GetRolesAsync(user);
+            return roles.FirstOrDefault();
+        }*/
 
         // GET: Employees
-        /*   public async Task<IActionResult> Index()
-           {
-               // Get the current user's role
-               var currentUser = await _userManager.GetUserAsync(User);
-               var currentRole = await _userManager.GetRolesAsync(currentUser);
-
-               // Retrieve the permissions for the user's role from the database
-               var rolePermissions = await _context.RolePermissions.FirstOrDefaultAsync(p => currentRole.Contains(p.RoleId!) && p.TableName == "Employees");
-
-               // Set ViewBag values based on permission values
-               bool canAdd = rolePermissions != null && rolePermissions.AddPermission;
-               bool canEdit = rolePermissions != null && rolePermissions.EditPermission;
-               bool canRead = rolePermissions != null && rolePermissions.ReadPermission;
-               bool canDelete = rolePermissions != null && rolePermissions.DeletePermission;
-
-               ViewBag.CanAdd = canAdd;
-               ViewBag.CanEdit = canEdit;
-               ViewBag.CanRead = canRead;
-               ViewBag.CanDelete = canDelete;
-
-               var finalDbContext = _context.Employees.Include(e => e.Department);
-               return View(await finalDbContext.ToListAsync());
-           }
-   */
-        private async Task<RolePermission> GetPermissionsForCurrentUser(string roleName, string controllerName)
-        {
-            return await _context.RolePermissions.FirstOrDefaultAsync(rp => rp.RoleId == roleName && rp.TableName == controllerName);
-        }
         public async Task<IActionResult> Index()
         {
+            var currentUser = await _userManager.GetUserAsync(User);
+            var currentRole = await _userManager.GetRolesAsync(currentUser);
+
+            var controllerName = this.ControllerContext.RouteData.Values["controller"]!.ToString();
+
+            var rolePermissions = await _context.RolePermissions.FirstOrDefaultAsync(p => currentRole.Contains(p.RoleId!) && p.TableName == controllerName);
+
+            bool canAdd = rolePermissions != null && rolePermissions.AddPermission;
+            bool canEdit = rolePermissions != null && rolePermissions.EditPermission;
+            bool canRead = rolePermissions != null && rolePermissions.ReadPermission;
+            bool canDelete = rolePermissions != null && rolePermissions.DeletePermission;
+
+            ViewBag.CanAdd = canAdd;
+            ViewBag.CanEdit = canEdit;
+            ViewBag.CanRead = canRead;
+            ViewBag.CanDelete = canDelete;
+
             var finalDbContext = _context.Employees.Include(e => e.Department);
-
-            // Get the current user's role
-            var user = await _userManager.GetUserAsync(User);
-            var userRoles = await _userManager.GetRolesAsync(user);
-            var userRole = userRoles.FirstOrDefault(); // Get the first role from the list
-
-            // Get the controller name
-            var controllerName = this.ControllerContext.RouteData.Values["controller"].ToString();
-
-            // Retrieve the permissions based on the user's role and controller
-            var permissions = await GetPermissionsForCurrentUser(userRole, controllerName);
-
-            ViewData["AddPermission"] = permissions?.AddPermission ?? false; // Pass the AddPermission value to the view
-
             return View(await finalDbContext.ToListAsync());
         }
+
+        /* private async Task<RolePermission> GetPermissionsForCurrentUser(string roleName, string controllerName)
+         {
+             return await _context.RolePermissions.FirstOrDefaultAsync(rp => rp.RoleId == roleName && rp.TableName == controllerName);
+         }
+         public async Task<IActionResult> Index()
+         {
+             var finalDbContext = _context.Employees.Include(e => e.Department);
+
+             var user = await _userManager.GetUserAsync(User);
+             var userRoles = await _userManager.GetRolesAsync(user);
+             var userRole = userRoles.FirstOrDefault(); 
+
+             var controllerName = this.ControllerContext.RouteData.Values["controller"].ToString();
+
+             var permissions = await GetPermissionsForCurrentUser(userRole, controllerName);
+
+             ViewData["AddPermission"] = permissions?.AddPermission ?? false;
+
+             return View(await finalDbContext.ToListAsync());
+         }*/
 
 
 
