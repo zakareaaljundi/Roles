@@ -122,7 +122,7 @@ namespace Roles.Controllers
                 var result = await roleManager.CreateAsync(role);
                 if (result.Succeeded)
                 {
-                    return RedirectToAction("RolesList1234");
+                    return RedirectToAction("RolesList");
                 }
                 foreach (var err in result.Errors)
                 {
